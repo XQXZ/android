@@ -3,7 +3,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="输入要下载的网址"
+            android:textSize="20sp"
+            />
+        <EditText
+            android:textSize="18sp"
+            android:textColor="#000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="例:http://www.baidu.com"
+            android:id="@+id/webUrl"
+            />
 
+    </LinearLayout>
     <Button
         android:id="@+id/start_download"
         android:layout_width="match_parent"

@@ -11,8 +11,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import lbstest.example.com.lbs.R;
@@ -21,6 +23,10 @@ import lbstest.example.com.lbs.R;
  * 功能：完整版的下载实例
  */
 public class Main4Activity extends AppCompatActivity implements View.OnClickListener {
+
+    private static boolean Justice = false;
+
+    EditText urlWeb = null;
 
     private DownloadService.DownloadBinder downloadBinder;
 //先创建一个SerViceConnection 的匿名类，
@@ -45,6 +51,7 @@ public class Main4Activity extends AppCompatActivity implements View.OnClickList
         Button startDownload = (Button) findViewById(R.id.start_download);
         Button pauseDownload = (Button) findViewById(R.id.pause_download);
         Button cancelDownload = (Button) findViewById(R.id.cancel_download);
+         urlWeb = (EditText) findViewById(R.id.webUrl);
         startDownload.setOnClickListener(this);
         pauseDownload.setOnClickListener(this);
         cancelDownload.setOnClickListener(this);
@@ -66,14 +73,30 @@ public class Main4Activity extends AppCompatActivity implements View.OnClickList
         }
         switch (v.getId()){
             case R.id.start_download:
-                String url = "https://github.com/XXApple/AndroidLibs/tree/master/Kotlin";
-                downloadBinder.startDownload(url);
+                String url = null;
+                    if(!urlWeb.getText().toString().equals("")){
+                    Log.d("XXX","urlWeb.get is"+urlWeb.getText().toString());
+                    url = urlWeb.getText().toString();
+                    downloadBinder.startDownload(url);
+                    Justice = true;
+                }else {
+                    Justice = false;
+                    Toast.makeText(Main4Activity.this,"请先填写要下载的网址!",Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.pause_download:
-                downloadBinder.pauseDownload();
+                if(Justice){
+                    downloadBinder.pauseDownload();
+                }else {
+                    Toast.makeText(Main4Activity.this,"请先填写要下载的网址!",Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.cancel_download:
-                downloadBinder.cancelDownload();
+                if(Justice){
+                    downloadBinder.cancelDownload();
+                }else {
+                    Toast.makeText(Main4Activity.this,"请先填写要下载的网址!",Toast.LENGTH_SHORT).show();
+                }
                 break;
             default:
                 break;
