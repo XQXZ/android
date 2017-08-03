@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:hyman="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.sdutacm.progressbar.HorizontalProgressWithProgressBar
+            android:id="@+id/id_progress01"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:padding="15dp"
+            android:progress="0"
+            hyman:progress_reach_color="#f00"
+            hyman:progress_text_color="#f00"
+            hyman:progress_unreach_color="#44ff0000" />
+
+        <com.sdutacm.progressbar.HorizontalProgressWithProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:padding="15dp"
+            android:progress="50"
+            hyman:progress_text_color="#44ff0000"
+            hyman:progress_unreach_color="#ffff00" />
+        <com.sdutacm.progressbar.RoundProgressBarWithProgress
+            android:id="@+id/id_progress02"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            hyman:radius="60dp"
+            android:layout_marginTop="30dp"
+            android:padding="15dp"
+            android:progress="0"
+            hyman:progress_text_size="30sp"
+            hyman:progress_text_color="#f00"
+            hyman:progress_unreach_color="#ffff00" />
+
+    </LinearLayout>
+</ScrollView>
