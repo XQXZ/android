@@ -86,60 +86,30 @@ public class HorizontalProgressBarWithProgressBar extends ProgressBar {
          *   获得高度的模式值
          */
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int widthVal = MeasureSpec.getSize(widthMeasureSpec);
+        int height = measureHeight(heightMeasureSpec);
+        setMeasuredDimension(widthVal,height); //确定控件的宽度和高度
 
+    }
+    //自测控件高度
+    private int measureHeight(int heightMeasureSpec) {
+        int result = 0;
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int size = MeasureSpec.getSize(heightMeasureSpec);
         if(heightMode != MeasureSpec.EXACTLY){  //自己测量尺寸
-            int textHeight = (int) (mPaint.descent() + mPaint.ascent());
-            //上边距和下边距
-            int expectHeight = (getPaddingBottom()+getPaddingTop())
-                    +Math.max(Math.max(mUnreachHeight,mReachHeight),Math.abs(textHeight)); //三者取最大值
-            //将自定义的值和测量的值比较，选取最合适的(最小的)
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(expectHeight,MeasureSpec.EXACTLY);
+            int textHeight = (int) (mPaint.descent() - mPaint.ascent());  //字体高度
+            //测量控件的高度
+            result = getPaddingTop() //上边距
+            +getPaddingBottom() //下边距
+            +Math.max(Math.max(mReachHeight,mUnreachHeight),Math.abs(textHeight));
+            if(heightMode == MeasureSpec.AT_MOST){
+                result = Math.min(result,size);
+            }
+        }else { //给的是精确值，直接返回精确值
+            result = size;
         }
-        super.onMeasure(widthMeasureSpec,heightMeasureSpec);
-
+        return result;
     }
-
-    //类型转换
-protected int dp2px(int dpVal){
-    return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dpVal
-    ,getResources().getDisplayMetrics());
-}
-//类型转换
-protected int sp2px(int spVal){
-    return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,spVal,
-            getResources().getDisplayMetrics());
-}
-
-
-
-
-//    @Override
-//    protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        int width = MeasureSpec.getSize(widthMeasureSpec);
-//        int height = MeasureSpec.getMode(heightMeasureSpec);
-//        setMeasuredDimension(width,height);
-//        mRealWidth = getMeasuredWidth() - getPaddingRight() - getPaddingLeft();
-//    }
-//    private int measureHeight(int measureSpec){
-//        int result = 0;
-//        int specMode = MeasureSpec.getMode(measureSpec);
-//        int specSize = MeasureSpec.getSize(measureSpec);
-//        //  //用户给了一个明确的值---MeasureSpec.EXACTLY（精确值）
-//        if(specMode == MeasureSpec.EXACTLY)
-//    }
-
-    public HorizontalProgressBarWithProgressBar(Context context) {
-        super(context);
-    }
-
-    public HorizontalProgressBarWithProgressBar(Context context, AttributeSet attrs) {
-        this(context, attrs,0); //调用自身的三个参数的构造方法
-    }
-
-
-
-
-
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         canvas.save();
@@ -172,6 +142,11 @@ protected int sp2px(int spVal){
             //从（0，0） 开始绘制到 (endx,0)结束 //画笔为mPaint
             canvas.drawLine(0,0,endX,0,mPaint);
         }
+        //绘制文本
+        mPaint.setColor(mTextColor);
+        int y = (int) (-(mPaint.descent()+mPaint.ascent())/2);
+        canvas.drawText(text,progressBarX,y,mPaint);
+
         //绘制未达到的进度
         if(!Needbg){
             float start = progressBarX + mTextOffset/2 + textWidth;
@@ -179,14 +154,36 @@ protected int sp2px(int spVal){
             mPaint.setStrokeWidth(mUnreachHeight);
             canvas.drawLine(start,0,mRealWidth,0,mPaint);
         }
-        //绘制文本
-        if(mIfDrawText){
-            mPaint.setColor(mTextColor);
-            canvas.drawText(text,progressBarX,-textHeight,mPaint);
-        }
+
 
         canvas.restore();
     }
+
+
+    public HorizontalProgressBarWithProgressBar(Context context) {
+        super(context,null);
+    }
+
+    public HorizontalProgressBarWithProgressBar(Context context, AttributeSet attrs) {
+        this(context, attrs,0); //调用自身的三个参数的构造方法
+    }
+
+    //类型转换
+    protected int dp2px(int dpVal){
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dpVal
+                ,getResources().getDisplayMetrics());
+    }
+    //类型转换
+    protected int sp2px(int spVal){
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,spVal,
+                getResources().getDisplayMetrics());
+    }
+
+
+
+
+
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {

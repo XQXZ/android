@@ -15,6 +15,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="50dip"
             android:padding="5dp"
+            android:progress="4000"
+            android:max="40000"
+            zhy:progress_text_color="#000"
+            zhy:progress_color_reach="#ff0"
+            zhy:progress_color_unreach="#0ff"
             />
         <com.sdutacm.progressbartest.HorizontalProgressBarWithProgressBar
             android:layout_width="match_parent"
