@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progressTint="#f40"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="输入要下载的网址"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/webUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="例:http://www.baidu.com"
+            android:textColor="#000"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/start_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="开始下载" />
+
+    <Button
+        android:id="@+id/pause_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="暂停下载" />
+
+    <Button
+        android:id="@+id/cancel_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="取消下载" />
+
+</LinearLayout>
