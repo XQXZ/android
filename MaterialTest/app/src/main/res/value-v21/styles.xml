@@ -1,0 +1,9 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="FruitActivity" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="android:statusBarColor">@color/transparent</item>
+    </style>
+
+</resources>
