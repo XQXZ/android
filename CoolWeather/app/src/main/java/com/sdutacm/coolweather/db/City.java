@@ -7,10 +7,15 @@ import org.litepal.crud.DataSupport;
  */
 
 public class City extends DataSupport {
+
     private int id;
+
     private String cityName; //城市的名字
+
     private int cityCode; //市的代号
+
     private int provinceId; //记录当前市所属省的id值
+
     public int getId() {
         return id;
     }

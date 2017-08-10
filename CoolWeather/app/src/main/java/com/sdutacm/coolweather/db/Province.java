@@ -7,9 +7,12 @@ import org.litepal.crud.DataSupport;
  */
 
 public class Province extends DataSupport{
-    private int provinceCode;  //省的代号
+
     private int id;            //实体类都有的字段
+
     private String provinceName;  //省的名字
+
+    private int provinceCode;  //省的代号
 
     public int getProvinceCode() {
         return provinceCode;
