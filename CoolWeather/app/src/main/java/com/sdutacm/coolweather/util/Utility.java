@@ -2,9 +2,11 @@ package com.sdutacm.coolweather.util;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.sdutacm.coolweather.db.City;
 import com.sdutacm.coolweather.db.County;
 import com.sdutacm.coolweather.db.Province;
+import com.sdutacm.coolweather.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +68,7 @@ public class Utility {
     public static boolean handleCountyResponse(String response, int cityId) {
         if (!TextUtils.isEmpty(response)) {
             try {
-                JSONArray allCounties = new JSONArray();
+                JSONArray allCounties = new JSONArray(response);
                 for (int i = 0; i < allCounties.length(); i++) {
 
                     JSONObject countyObject = allCounties.getJSONObject(i);
@@ -82,5 +84,23 @@ public class Utility {
             }
         }
         return false;
+    }
+    /**
+     * 将返回的数据解析成Weather 实体类
+     *
+     * 先通过JSONObject和JSONArray将天气数据中的主体内容解析出来
+     * 然后按照我们之前已经按照上面的数据格式定义过相应的GSON实体类
+     * 因此需要调用fromJson()方法就能直接将JSON数据转换成Weather对象了
+     */
+    public static Weather handleWeatherResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
