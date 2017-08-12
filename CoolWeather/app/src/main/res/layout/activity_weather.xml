@@ -10,6 +10,11 @@
         android:id="@+id/bing_pic_img"
         android:scaleType="centerCrop"
         />
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/swip_refresh"
+        >
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:fitsSystemWindows="true"
             >
             <include layout="@layout/title"/>
             <include layout="@layout/now"/>
@@ -29,4 +35,5 @@
             <include layout="@layout/suggestion"/>
         </LinearLayout>
     </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>
