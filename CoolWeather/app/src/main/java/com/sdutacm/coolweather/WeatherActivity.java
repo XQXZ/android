@@ -1,5 +1,6 @@
 package com.sdutacm.coolweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.sdutacm.coolweather.gson.Forecast;
 import com.sdutacm.coolweather.gson.Weather;
+import com.sdutacm.coolweather.service.AutoUpdateService;
 import com.sdutacm.coolweather.util.HttpUtil;
 import com.sdutacm.coolweather.util.Utility;
 
@@ -229,6 +231,7 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weather
      */
     private void showWeatherInfo(Weather weather) {
+        if(weather != null && "ok".equals(weather.status)){
         Log.d("error","111111weather is the "+weather);
         /**
          * 从Weather对象中获取数据,
@@ -287,6 +290,11 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText.setText(carWash);
         sportText.setText(sport);
         weatherLayout.setVisibility(View.VISIBLE);
+            Intent intent = new Intent(this, AutoUpdateService.class);
+            startService(intent);
+        }else {
+            Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();;
+        }
     }
 }
 
