@@ -84,6 +84,8 @@ public class ChooseAreaFragment extends Fragment {
      */
     private int currentLevel;
 
+
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.choose_area,container,false);
         titleText = (TextView) view.findViewById(R.id.title_text);
@@ -127,7 +129,7 @@ public class ChooseAreaFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(currentLevel == LEVEL_COUNTY){
-                    queryCounties();
+                    queryCities();
                 }else if(currentLevel == LEVEL_CITY){
                     queryProvinces();
                 }

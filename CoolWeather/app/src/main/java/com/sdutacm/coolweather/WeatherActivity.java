@@ -70,6 +70,8 @@ public class WeatherActivity extends AppCompatActivity {
     
     private ImageView bingPicImg;
 
+   private String mWeatherId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,14 +114,14 @@ public class WeatherActivity extends AppCompatActivity {
              * 从Intent中取出天气的id,并调用requestWeather()方法来从服务器请求天气数据
              * 注意,请求数据,先将ScrollView隐藏,不然空数据的界面看上去会很奇怪
              */
-             weatherId = getIntent().getStringExtra("weather_id");
+            mWeatherId = getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
-            requestWeather(weatherId);
+            requestWeather(mWeatherId);
         }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(weatherId);
+                requestWeather(mWeatherId);
             }
         });
         String bingPic = prefs.getString("bing_pic",null);
@@ -214,6 +216,7 @@ public class WeatherActivity extends AppCompatActivity {
                                     PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseText);
                             editor.apply();
+                            mWeatherId = weather.basic.weatherId;
                             showWeatherInfo(weather);
                         } else {
                             Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
