@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<item android:id="@+id/action_setting"
+    android:title="再来一局"
+    android:orderInCategory="100"
+    app:showAsAction="never"/>
+    <item android:id="@+id/tack_back"
+        android:title="悔棋"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        />
+    <item android:id="@+id/hint"
+        android:title="提示"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        />
+    <item android:id="@+id/ai"
+        android:title="人机对战"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+    <item android:id="@+id/change"
+        android:title="更换背景"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+</menu>
