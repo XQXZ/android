@@ -47,6 +47,13 @@ public class WuziqiPanel extends View {
     private ArrayList<Point> fifthStep = new ArrayList<>();
     private ArrayList<Point> sixthStep = new ArrayList<>();
 
+    private ArrayList<Point> firstStepTemp = new ArrayList<>();
+    private ArrayList<Point> secondStepTemp = new ArrayList<>();
+    private ArrayList<Point> thirdStepTemp = new ArrayList<>();
+    private ArrayList<Point> forthStepTemp = new ArrayList<>();
+    private ArrayList<Point> fifthStepTemp = new ArrayList<>();
+    private ArrayList<Point> sixthStepTemp = new ArrayList<>();
+    
     private boolean mIsGameOver;  //判断游戏是否结束
 
     private boolean OPEN_AI_MODE = false;
@@ -143,7 +150,14 @@ public class WuziqiPanel extends View {
                         mWhiteArray.add(p);
                     } else {
                         //黑棋人工智能
-                        blackFirst();
+                       // blackFirst();
+                       // whiteFirst();
+                        clearQueue();
+                        if (mIsWhiteRobot) { //如果当前应当白棋先走
+                            whiteFirst();
+                        } else {
+                            blackFirst();
+                        }
                     }
                 } else {
                     mWhiteArray.add(p);
@@ -155,7 +169,14 @@ public class WuziqiPanel extends View {
                         mBlackArray.add(p);
                     } else {
                         //白棋人工智能
-                        whiteFirst();
+                     //   whiteFirst();
+                       // blackFirst();
+                        clearQueue();
+                        if (!mIsWhiteRobot) { //如果当前应当白棋先走
+                            whiteFirst();
+                        } else {
+                            blackFirst();
+                        }
                     }
                 } else {
                     mBlackArray.add(p);
@@ -170,9 +191,32 @@ public class WuziqiPanel extends View {
     }
 
     private void whiteFirst() {
+        clearQueue();
+        for (Point point : mWhiteArray) {
+            int x = point.x;
+            int y = point.y;
+            whiteFirstCheckHorizontalStategy(x, y, mWhiteArray); //传入当前棋子的位置, 白棋集合,黑棋集合
+            whiteFirstcheckVerticalStategy(x, y, mWhiteArray);
+            whiteFirstcheckLeftDiagonalStategy(x, y, mWhiteArray);
+            whiteFirstcheckRightDiagonalStategy(x, y, mWhiteArray);
+
+        }
+        Point ppp = getPoint();
+        mWhiteArray.add(ppp);
     }
 
     private void blackFirst() {
+        clearQueue();
+        for (Point point : mBlackArray) {
+            int x = point.x;
+            int y = point.y;
+            blackFirstCheckHorizontalStategy(x, y, mBlackArray); //传入当前棋子的位置, 白棋集合,黑棋集合
+            blackFirstcheckVerticalStategy(x, y, mBlackArray);
+            blackFirstcheckLeftDiagonalStategy(x, y, mBlackArray);
+            blackFirstcheckRightDiagonalStategy(x, y, mBlackArray);
+        }
+        Point ppp = getPoint();
+        mBlackArray.add(ppp);
     }
 
 
@@ -264,7 +308,8 @@ public class WuziqiPanel extends View {
                 break;
             }
         }
-        if (count == MAX_COUNT_IN_LINE) return true;
+        if (count == MAX_COUNT_IN_LINE)
+            return true;
         for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
             if (points.contains(new Point(x, y + i))) {
                 count++;
@@ -295,7 +340,7 @@ public class WuziqiPanel extends View {
             }
         }
         if (count == MAX_COUNT_IN_LINE)
-            return true;
+             return true;
         return false;
     }
 
@@ -391,6 +436,7 @@ public class WuziqiPanel extends View {
         mIsWhiteRobot = false; //默认黑棋先行
         Key = false;
         clearQueue();
+        clearQueueTemp();
         invalidate();
     }
 
@@ -431,6 +477,14 @@ public class WuziqiPanel extends View {
         secondStep.clear();
         firstStep.clear();
     }
+    public void clearQueueTemp() {
+        fifthStepTemp.clear();
+        sixthStepTemp.clear();
+        forthStepTemp.clear();
+        thirdStepTemp.clear();
+        secondStepTemp.clear();
+        firstStepTemp.clear();
+    }
 
     public Point getPoint() {
         if (firstStep.size() > 0) {
@@ -453,57 +507,40 @@ public class WuziqiPanel extends View {
      * 提示走下一步
      */
     private void hintSmartStep(List<Point> wPoints, List<Point> bPoints) {
-        clearQueue();
         if (mIsWhite) { //如果当前应当白棋先走
-            for (Point point : wPoints) {
-                int x = point.x;
-                int y = point.y;
-                whiteFirstCheckHorizontalStategy(x, y, wPoints); //传入当前棋子的位置, 白棋集合,黑棋集合
-                whiteFirstcheckVerticalStategy(x, y, wPoints);
-                whiteFirstcheckLeftDiagonalStategy(x, y, wPoints);
-                whiteFirstcheckRightDiagonalStategy(x, y, wPoints);
-
-            }
-            Point ppp = getPoint();
-            mWhiteArray.add(ppp);
+            whiteFirst();
         } else {
-            for (Point point : bPoints) {
-                int x = point.x;
-                int y = point.y;
-                blackFirstCheckHorizontalStategy(x, y, bPoints); //传入当前棋子的位置, 白棋集合,黑棋集合
-                blackFirstcheckVerticalStategy(x, y, bPoints);
-                blackFirstcheckLeftDiagonalStategy(x, y, bPoints);
-                blackFirstcheckRightDiagonalStategy(x, y, bPoints);
-            }
-            Point ppp = getPoint();
-            mBlackArray.add(ppp);
+            blackFirst();
         }
         mIsWhite = !mIsWhite;
         invalidate();
-
-
     }
 
     public void ai() {
         if (!mIsGameOver) {
-            takeAI(mWhiteArray, mBlackArray);
-        } else {
-            Toast.makeText(getContext(), "游戏已经结束,再来一局吧!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void takeAI(ArrayList<Point> mWhiteArray, ArrayList<Point> mBlackArray) {
-        if (!Key) { //确定哪一方是电脑
-            Key = true;
-            if (mIsWhite) {
-                mIsWhiteRobot = true;
-                Log.d("mIsWhiteRobot", "mIsWhiteRobot is the " + mIsWhiteRobot);
-            } else {
-                mIsWhiteRobot = false;
-                Log.d("mIsWhiteRobot", "mIsWhiteRobot is the " + mIsWhiteRobot);
+            if (!Key) { //确定哪一方是电脑
+                Key = true;
+                if (mIsWhite) {
+                    mIsWhiteRobot = true;
+                    Log.d("mIsWhiteRobot", "mIsWhiteRobot is the " + mIsWhiteRobot);
+                } else {
+                    mIsWhiteRobot = false;
+                    Log.d("mIsWhiteRobot", "mIsWhiteRobot is the " + mIsWhiteRobot);
+                }
+                OPEN_AI_MODE = true;
+                String firstRobot;
+                if(mIsWhiteRobot){
+                    firstRobot = "白棋";
+                }else {
+                    firstRobot = "黑棋";
+                }
+                Toast.makeText(getContext(),"人机对战已经打开,电脑执"+firstRobot,Toast.LENGTH_SHORT).show();
+            }else if(OPEN_AI_MODE){
+                OPEN_AI_MODE = !OPEN_AI_MODE;
+                Toast.makeText(getContext(),"关闭人机对战",Toast.LENGTH_SHORT).show();
             }
         } else {
-
+            Toast.makeText(getContext(), "游戏已经结束,再来一局吧!", Toast.LENGTH_SHORT).show();
         }
     }
 
