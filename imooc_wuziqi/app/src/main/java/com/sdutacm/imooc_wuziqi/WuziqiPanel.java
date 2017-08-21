@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by bummer on 2017/8/16.
@@ -53,7 +54,7 @@ public class WuziqiPanel extends View {
     private ArrayList<Point> forthStepTemp = new ArrayList<>();
     private ArrayList<Point> fifthStepTemp = new ArrayList<>();
     private ArrayList<Point> sixthStepTemp = new ArrayList<>();
-    
+
     private boolean mIsGameOver;  //判断游戏是否结束
 
     private boolean OPEN_AI_MODE = false;
@@ -125,6 +126,58 @@ public class WuziqiPanel extends View {
         mBlackPiece = Bitmap.createScaledBitmap(mBlackPiece, pieceWidth, pieceWidth, false);
     }
 
+    /**
+     * 转移集合元素
+     */
+    private void strategy_Set_Transformation() {
+        clearQueueTemp();
+        for (Point point : fifthStep) {
+            fifthStepTemp.add(point);
+        }
+        for (Point point : sixthStep) {
+            sixthStepTemp.add(point);
+        }
+        for (Point point : forthStep) {
+            forthStepTemp.add(point);
+        }
+        for (Point point : thirdStep) {
+            thirdStepTemp.add(point);
+        }
+        for (Point point : secondStep) {
+            secondStepTemp.add(point);
+        }
+        for (Point point : firstStep) {
+            firstStepTemp.add(point);
+        }
+    }
+
+    public static int[] randomArray(int min,int max,int n){
+        int len = max-min+1;
+
+        if(max < min || n > len){
+            return null;
+        }
+
+        //初始化给定范围的待选数组
+        int[] source = new int[len];
+        for (int i = min; i < min+len; i++){
+            source[i-min] = i;
+        }
+
+        int[] result = new int[n];
+        Random rd = new Random();
+        int index = 0;
+        for (int i = 0; i < result.length; i++) {
+            //待选数组0到(len-2)随机一个下标
+            index = Math.abs(rd.nextInt() % len--);
+            //将随机到的数放入结果集
+            result[i] = source[index];
+            //将待选数组中被随机到的数，用待选数组(len-1)下标对应的数替换
+            source[index] = source[len];
+        }
+        return result;
+    }
+
     //编写点击事件
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -150,8 +203,8 @@ public class WuziqiPanel extends View {
                         mWhiteArray.add(p);
                     } else {
                         //黑棋人工智能
-                       // blackFirst();
-                       // whiteFirst();
+                        // blackFirst();
+                        // whiteFirst();
                         clearQueue();
                         if (mIsWhiteRobot) { //如果当前应当白棋先走
                             whiteFirst();
@@ -169,8 +222,8 @@ public class WuziqiPanel extends View {
                         mBlackArray.add(p);
                     } else {
                         //白棋人工智能
-                     //   whiteFirst();
-                       // blackFirst();
+                        //   whiteFirst();
+                        // blackFirst();
                         clearQueue();
                         if (!mIsWhiteRobot) { //如果当前应当白棋先走
                             whiteFirst();
@@ -191,6 +244,7 @@ public class WuziqiPanel extends View {
     }
 
     private void whiteFirst() {
+        strategy_Set_Transformation();  //保存黑棋的集合元素
         clearQueue();
         for (Point point : mWhiteArray) {
             int x = point.x;
@@ -206,6 +260,7 @@ public class WuziqiPanel extends View {
     }
 
     private void blackFirst() {
+        strategy_Set_Transformation(); //保存白棋的集合元素
         clearQueue();
         for (Point point : mBlackArray) {
             int x = point.x;
@@ -279,7 +334,7 @@ public class WuziqiPanel extends View {
      */
     private boolean checkHorizontal(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y))) {
                 count++;
             } else {
@@ -287,7 +342,7 @@ public class WuziqiPanel extends View {
             }
         }
         if (count == MAX_COUNT_IN_LINE) return true;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y))) {
                 count++;
             } else {
@@ -301,7 +356,7 @@ public class WuziqiPanel extends View {
 
     private boolean checkVertical(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x, y - i))) {
                 count++;
             } else {
@@ -310,7 +365,7 @@ public class WuziqiPanel extends View {
         }
         if (count == MAX_COUNT_IN_LINE)
             return true;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x, y + i))) {
                 count++;
             } else {
@@ -324,7 +379,7 @@ public class WuziqiPanel extends View {
 
     private boolean checkLeftDiagonal(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y + i))) {
                 count++;
             } else {
@@ -332,7 +387,7 @@ public class WuziqiPanel extends View {
             }
         }
         if (count == MAX_COUNT_IN_LINE) return true;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y - i))) {
                 count++;
             } else {
@@ -340,13 +395,13 @@ public class WuziqiPanel extends View {
             }
         }
         if (count == MAX_COUNT_IN_LINE)
-             return true;
+            return true;
         return false;
     }
 
     private boolean checkRightDiagonal(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y - i))) {
                 count++;
             } else {
@@ -354,7 +409,7 @@ public class WuziqiPanel extends View {
             }
         }
         if (count == MAX_COUNT_IN_LINE) return true;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y + i))) {
                 count++;
             } else {
@@ -446,8 +501,13 @@ public class WuziqiPanel extends View {
     public void takeBack() {
         if (mBlackArray.size() > 0 && mWhiteArray.size() > 0) {
             if (!mIsGameOver) {
-                mWhiteArray.remove(mWhiteArray.size() - 1);
-                mBlackArray.remove(mBlackArray.size() - 1);
+                if (!mIsWhite) {
+                    mWhiteArray.remove(mWhiteArray.size() - 1);
+
+                } else {
+                    mBlackArray.remove(mBlackArray.size() - 1);
+                }
+                mIsWhite = !mIsWhite;
                 invalidate();
             } else {
                 Toast.makeText(getContext(), "游戏已经结束,再来一局吧!", Toast.LENGTH_SHORT).show();
@@ -477,6 +537,7 @@ public class WuziqiPanel extends View {
         secondStep.clear();
         firstStep.clear();
     }
+
     public void clearQueueTemp() {
         fifthStepTemp.clear();
         sixthStepTemp.clear();
@@ -502,6 +563,335 @@ public class WuziqiPanel extends View {
         }
         return null;
     }
+
+
+    /**
+     * 获得敌方三子连在一块,或四字连在一块的位置
+     *
+     * @return
+     */
+    public Point turnDown() {
+        Point point = getPoint();
+        int x, y;
+        if (mIsWhite) {
+            if (firstStepTemp.size() > 0) {
+                point = firstStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mBlackArray);
+            } else if (secondStepTemp.size() > 0) {
+                point = secondStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mBlackArray);
+            } else if (thirdStepTemp.size() > 0) {
+                point = thirdStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mBlackArray);
+            } else if (forthStepTemp.size() > 0) {
+                point = forthStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mBlackArray);
+            }
+
+        } else {
+            if (firstStepTemp.size() > 0) {
+                point = firstStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mWhiteArray);
+            } else if (secondStepTemp.size() > 0) {
+                point = secondStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mWhiteArray);
+            } else if (thirdStepTemp.size() > 0) {
+                point = thirdStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mWhiteArray);
+            } else if (forthStepTemp.size() > 0) {
+                point = forthStepTemp.get(firstStepTemp.size() - 1);
+                x = point.x;
+                y = point.y;
+                point = getTurnDownPoint(x, y, mWhiteArray);
+            }
+        }
+        if (point == null) {
+            return getPoint();
+        }
+        return point;
+    }
+
+    /**
+     * 获得拦截对方的三子成一条直线
+     *
+     * @param x           黑棋的X坐标 (白棋的X坐标)
+     * @param y           黑棋的Y坐标 (白棋的Y坐标)
+     * @param PointsArray 白棋的集合 (黑棋的集合)
+     * @return
+     */
+    private Point getTurnDownPoint(int x, int y, ArrayList<Point> PointsArray) {
+        if (checkHorizontalTurnDown(x, y, PointsArray) != null) {
+            return checkHorizontalTurnDown(x, y, PointsArray);
+
+        } else if (checkVerticalTurnDown(x, y, PointsArray) != null) {
+
+            return checkVerticalTurnDown(x, y, PointsArray);
+
+        }  else if (checkLeftDiagonalTurnDown(x, y, PointsArray) != null) {
+
+            return checkLeftDiagonalTurnDown(x, y, PointsArray);
+
+        } else if (checkRightDiagonalTurnDown(x, y, PointsArray) != null) {
+
+            return checkRightDiagonalTurnDown(x, y, PointsArray);
+
+        }
+        return null;
+    }
+
+    private Point checkRightDiagonalTurnDown(int x, int y, ArrayList<Point> points) {
+
+        int count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x - i, y - i))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        if (points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 1
+                            return new Point(x - i, y - i);
+                        } else
+                            //等级 2
+                            return new Point(x - i, y - i);
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        if (points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 3
+                            return new Point(x - i, y - i);
+                        } else
+                            //等级 4
+                            return new Point(x - i, y - i);
+                    }
+                }
+            }
+
+
+        }
+        count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x + i, y + i))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        if (points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
+                            return new Point(x + i, y + i);
+                        } else if (count == 2) { //已经有三棋子在一块了
+                            if (points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
+                                //等级 3
+                                return new Point(x + i, y + i);
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }
+        return null;
+    }
+
+
+    private Point checkLeftDiagonalTurnDown(int x, int y, ArrayList<Point> points) {
+        int count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x - i, y + i))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        if (points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 1
+                            return new Point(x - i, y + i);
+                        } else
+                            //等级 2
+                            return new Point(x - i, y + i);
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        if (points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 3
+                            return new Point(x - i, y + i);
+                        } else
+                            //等级 4
+                            return new Point(x - i, y + i);
+                    }
+                }
+            }
+
+
+        }
+        count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x + i, y - i))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        if (points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 1
+                            firstStep.add(new Point(x + i, y - i));
+                        } else
+                            //等级 2
+                            secondStep.add(new Point(x + i, y - i));
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        if (points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 3
+                            thirdStep.add(new Point(x + i, y - i));
+                        } else
+                            //等级 4
+                            forthStep.add(new Point(x + i, y - i));
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    private Point checkVerticalTurnDown(int x, int y, ArrayList<Point> points) {
+
+        int count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x, y - i))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        if (points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 1
+                            return new Point(x, y - i);
+                        } else
+                            //等级 2
+                            return new Point(x, y - i);
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        if (points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 3
+                            thirdStep.add(new Point(x, y - i));
+                        } else
+                            //等级 4
+                            return new Point(x, y - i);
+                    }
+                }
+            }
+
+
+        }
+        count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x, y + i))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        if (points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 1
+                            return new Point(x, y + i);
+                        } else
+                            //等级 2
+                            return new Point(x, y + i);
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        if (points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
+                            //等级 3
+                            return new Point(x, y + i);
+                        } else
+                            //等级 4
+                            return new Point(x, y + i);
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     *
+     *
+     * @param x 黑棋的X
+     * @param y 黑棋的Y
+     * @param points 白棋的集合
+     * @return
+     */
+    private Point checkHorizontalTurnDown(int x, int y, ArrayList<Point> points) {
+        int count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x - i, y))) { //一直是白棋
+                count++;
+            } else {
+                //判断黑白棋
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        return new Point(x - i, y);
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        return new Point(x - i, y);
+                    }
+                }
+            }
+        }
+
+        count = 1;
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
+            if (points.contains(new Point(x + i, y))) { //一直是白棋
+                count++;
+            } else {
+                if (mBlackArray.contains(new Point(x - i, y)) && mIsWhite) { //遇到黑棋,结束遍历
+                    break;
+                } else if (mWhiteArray.contains(new Point(x - i, y)) && !mIsWhite) {
+                    break;
+                } else {  //点Piont(x-i,y)为空
+                    if (count == 3) {  //已经有四棋子在一块了
+                        return new Point(x + i, y);
+                    } else if (count == 2) { //已经有三棋子在一块了
+                        return new Point(x + i, y);
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
 
     /**
      * 提示走下一步
@@ -529,15 +919,15 @@ public class WuziqiPanel extends View {
                 }
                 OPEN_AI_MODE = true;
                 String firstRobot;
-                if(mIsWhiteRobot){
+                if (mIsWhiteRobot) {
                     firstRobot = "白棋";
-                }else {
+                } else {
                     firstRobot = "黑棋";
                 }
-                Toast.makeText(getContext(),"人机对战已经打开,电脑执"+firstRobot,Toast.LENGTH_SHORT).show();
-            }else if(OPEN_AI_MODE){
+                Toast.makeText(getContext(), "人机对战已经打开,电脑执" + firstRobot, Toast.LENGTH_SHORT).show();
+            } else if (OPEN_AI_MODE) {
                 OPEN_AI_MODE = !OPEN_AI_MODE;
-                Toast.makeText(getContext(),"关闭人机对战",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "关闭人机对战", Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(getContext(), "游戏已经结束,再来一局吧!", Toast.LENGTH_SHORT).show();
@@ -546,7 +936,7 @@ public class WuziqiPanel extends View {
 
     private void whiteFirstcheckRightDiagonalStategy(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y - i))) { //一直是白棋
                 count++;
             } else {
@@ -559,28 +949,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x - i, y - i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x - i, y - i)));
+                            secondStep.add(new Point(x - i, y - i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x - i, y - i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x - i, y - i)));
+                            forthStep.add(new Point(x - i, y - i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x - i, y - i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y - i)));
+                            sixthStep.add(new Point(x - i, y - i));
                     } else {
                         if (!points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y - i)));
+                            sixthStep.add(new Point(x - i, y - i));
                         break;
                     }
                 }
@@ -589,7 +979,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y + i))) { //一直是白棋
                 count++;
             } else {
@@ -602,28 +992,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x + i, y + i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x + i, y + i)));
+                            secondStep.add(new Point(x + i, y + i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x + i, y + i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x + i, y + i)));
+                            forthStep.add(new Point(x + i, y + i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x + i, y + i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y + i)));
+                            sixthStep.add(new Point(x + i, y + i));
                     } else {
                         if (!points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y + i)));
+                            sixthStep.add(new Point(x + i, y + i));
                         break;
                     }
                 }
@@ -634,7 +1024,7 @@ public class WuziqiPanel extends View {
 
     private void blackFirstcheckRightDiagonalStategy(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y - i))) { //一直是白棋
                 count++;
             } else {
@@ -647,28 +1037,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x - i, y - i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x - i, y - i)));
+                            secondStep.add(new Point(x - i, y - i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x - i, y - i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x - i, y - i)));
+                            forthStep.add(new Point(x - i, y - i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x - i, y - i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y - i)));
+                            sixthStep.add(new Point(x - i, y - i));
                     } else {
                         if (!points.contains(new Point(x - i - 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y - i)));
+                            sixthStep.add(new Point(x - i, y - i));
                         break;
                     }
                 }
@@ -677,7 +1067,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y + i))) { //一直是白棋
                 count++;
             } else {
@@ -690,28 +1080,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x + i, y + i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x + i, y + i)));
+                            secondStep.add(new Point(x + i, y + i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x + i, y + i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x + i, y + i)));
+                            forthStep.add(new Point(x + i, y + i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x + i, y + i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y + i)));
+                            sixthStep.add(new Point(x + i, y + i));
                     } else {
                         if (!points.contains(new Point(x + i + 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y + i)));
+                            sixthStep.add(new Point(x + i, y + i));
                         break;
                     }
                 }
@@ -722,7 +1112,7 @@ public class WuziqiPanel extends View {
 
     private void blackFirstcheckLeftDiagonalStategy(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y + i))) { //一直是白棋
                 count++;
             } else {
@@ -735,28 +1125,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x - i, y + i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x - i, y + i)));
+                            secondStep.add(new Point(x - i, y + i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x - i, y + i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x - i, y + i)));
+                            forthStep.add(new Point(x - i, y + i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x - i, y + i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y + i)));
+                            sixthStep.add(new Point(x - i, y + i));
                     } else {
                         if (!points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y + i)));
+                            sixthStep.add(new Point(x - i, y + i));
                         break;
                     }
                 }
@@ -765,7 +1155,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y - i))) { //一直是白棋
                 count++;
             } else {
@@ -778,28 +1168,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x + i, y - i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x + i, y - i)));
+                            secondStep.add(new Point(x + i, y - i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x + i, y - i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x + i, y - i)));
+                            forthStep.add(new Point(x + i, y - i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x + i, y - i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y - i)));
+                            sixthStep.add(new Point(x + i, y - i));
                     } else {
                         if (!points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y - i)));
+                            sixthStep.add(new Point(x + i, y - i));
                         break;
                     }
                 }
@@ -810,7 +1200,7 @@ public class WuziqiPanel extends View {
 
     private void whiteFirstcheckLeftDiagonalStategy(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y + i))) { //一直是白棋
                 count++;
             } else {
@@ -823,28 +1213,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x - i, y + i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x - i, y + i)));
+                            secondStep.add(new Point(x - i, y + i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x - i, y + i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x - i, y + i)));
+                            forthStep.add(new Point(x - i, y + i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x - i, y + i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y + i)));
+                            sixthStep.add(new Point(x - i, y + i));
                     } else {
                         if (!points.contains(new Point(x - i - 1, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y + i)));
+                            sixthStep.add(new Point(x - i, y + i));
                         break;
                     }
                 }
@@ -853,7 +1243,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y - i))) { //一直是白棋
                 count++;
             } else {
@@ -866,28 +1256,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x + i, y - i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x + i, y - i)));
+                            secondStep.add(new Point(x + i, y - i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x + i, y - i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x + i, y - i)));
+                            forthStep.add(new Point(x + i, y - i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x + i, y - i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y - i)));
+                            sixthStep.add(new Point(x + i, y - i));
                     } else {
                         if (!points.contains(new Point(x + i + 1, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y - i)));
+                            sixthStep.add(new Point(x + i, y - i));
                         break;
                     }
                 }
@@ -898,7 +1288,7 @@ public class WuziqiPanel extends View {
 
     private void blackFirstcheckVerticalStategy(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x, y - i))) { //一直是白棋
                 count++;
             } else {
@@ -911,28 +1301,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x, y - i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x, y - i)));
+                            secondStep.add(new Point(x, y - i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x, y - i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x, y - i)));
+                            forthStep.add(new Point(x, y - i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x, y - i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y - i)));
+                            sixthStep.add(new Point(x, y - i));
                     } else {
                         if (!points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y - i)));
+                            sixthStep.add(new Point(x, y - i));
                         break;
                     }
                 }
@@ -941,7 +1331,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x, y + i))) { //一直是白棋
                 count++;
             } else {
@@ -954,28 +1344,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x, y + i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x, y + i)));
+                            secondStep.add(new Point(x, y + i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x, y + i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x, y + i)));
+                            forthStep.add(new Point(x, y + i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x, y + i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y + i)));
+                            sixthStep.add(new Point(x, y + i));
                     } else {
                         if (!points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y + i)));
+                            sixthStep.add(new Point(x, y + i));
                         break;
                     }
                 }
@@ -988,7 +1378,7 @@ public class WuziqiPanel extends View {
     private void whiteFirstcheckVerticalStategy(int x, int y, List<Point> points) {
 
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x, y - i))) { //一直是白棋
                 count++;
             } else {
@@ -1001,28 +1391,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x, y - i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x, y - i)));
+                            secondStep.add(new Point(x, y - i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x, y - i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x, y - i)));
+                            forthStep.add(new Point(x, y - i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x, y - i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y - i)));
+                            sixthStep.add(new Point(x, y - i));
                     } else {
                         if (!points.contains(new Point(x, y - i - 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y - i)));
+                            sixthStep.add(new Point(x, y - i));
                         break;
                     }
                 }
@@ -1031,7 +1421,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x, y + i))) { //一直是白棋
                 count++;
             } else {
@@ -1044,28 +1434,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x, y + i));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x, y + i)));
+                            secondStep.add(new Point(x, y + i));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x, y + i));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x, y + i)));
+                            forthStep.add(new Point(x, y + i));
                     } else if (count == 1) {
                         if (points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x, y + i));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y + i)));
+                            sixthStep.add(new Point(x, y + i));
                     } else {
                         if (!points.contains(new Point(x, y + i + 1))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x, y + i)));
+                            sixthStep.add(new Point(x, y + i));
                         break;
                     }
                 }
@@ -1079,7 +1469,7 @@ public class WuziqiPanel extends View {
     private void blackFirstCheckHorizontalStategy(int x, int y, List<Point> points) {
 
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y))) { //一直是白棋
                 count++;
             } else {
@@ -1092,28 +1482,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x - i, y));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x - i, y)));
+                            secondStep.add(new Point(x - i, y));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x - i - 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x - i, y));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x - i, y)));
+                            forthStep.add(new Point(x - i, y));
                     } else if (count == 1) {
                         if (points.contains(new Point(x - i - 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x - i, y));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y)));
+                            sixthStep.add(new Point(x - i, y));
                     } else {
                         if (!points.contains(new Point(x - i - 1, y))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y)));
+                            sixthStep.add(new Point(x - i, y));
                         break;
                     }
                 }
@@ -1122,7 +1512,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y))) { //一直是白棋
                 count++;
             } else {
@@ -1135,28 +1525,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x + i, y));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x + i, y)));
+                            secondStep.add(new Point(x + i, y));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x + i + 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x + i, y));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x + i, y)));
+                            forthStep.add(new Point(x + i, y));
                     } else if (count == 1) {
                         if (points.contains(new Point(x + i + 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x + i, y));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y)));
+                            sixthStep.add(new Point(x + i, y));
                     } else {
                         if (!points.contains(new Point(x + i + 1, y))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y)));
+                            sixthStep.add(new Point(x + i, y));
                         break;
                     }
                 }
@@ -1168,7 +1558,7 @@ public class WuziqiPanel extends View {
 
     private void whiteFirstCheckHorizontalStategy(int x, int y, List<Point> points) {
         int count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x - i, y))) { //一直是白棋
                 count++;
             } else {
@@ -1178,7 +1568,7 @@ public class WuziqiPanel extends View {
                     if (count == 3) {  //已经有四棋子在一块了
                         if (points.contains(new Point(x - i - 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 2
-                            secondStep.add(new Point(new Point(x - i, y)));
+                            secondStep.add(new Point(x - i, y));
                         } else
                             //等级 1
                             firstStep.add(new Point(x - i, y));
@@ -1188,21 +1578,21 @@ public class WuziqiPanel extends View {
                             thirdStep.add(new Point(x - i, y));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x - i, y)));
+                            forthStep.add(new Point(x - i, y));
                     } else if (count == 1) {
                         if (points.contains(new Point(x - i - 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x - i, y));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y)));
+                            sixthStep.add(new Point(x - i, y));
                     } else {
                         if (!points.contains(new Point(x - i - 1, y))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x - i, y)));
+                            sixthStep.add(new Point(x - i, y));
                         break;
                     }
                 }
@@ -1211,7 +1601,7 @@ public class WuziqiPanel extends View {
 
         }
         count = 1;
-        for (int i = 1; i < MAX_COUNT_IN_LINE-1; i++) {
+        for (int i = 1; i < MAX_COUNT_IN_LINE - 1; i++) {
             if (points.contains(new Point(x + i, y))) { //一直是白棋
                 count++;
             } else {
@@ -1224,28 +1614,28 @@ public class WuziqiPanel extends View {
                             firstStep.add(new Point(x + i, y));
                         } else
                             //等级 2
-                            secondStep.add(new Point(new Point(x + i, y)));
+                            secondStep.add(new Point(x + i, y));
                     } else if (count == 2) { //已经有三棋子在一块了
                         if (points.contains(new Point(x + i + 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 3
                             thirdStep.add(new Point(x + i, y));
                         } else
                             //等级 4
-                            forthStep.add(new Point(new Point(x + i, y)));
+                            forthStep.add(new Point(x + i, y));
                     } else if (count == 1) {
                         if (points.contains(new Point(x + i + 1, y))) { //隔了一个空白,空白对面还是自己人
                             //等级 5
                             fifthStep.add(new Point(x + i, y));
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y)));
+                            sixthStep.add(new Point(x + i, y));
                     } else {
                         if (!points.contains(new Point(x + i + 1, y))) { //隔了一个空白,空白对面还是自己人
                             //遇到黑子或者撞墙,结束
                             break;
                         } else
                             //等级 6
-                            sixthStep.add(new Point(new Point(x + i, y)));
+                            sixthStep.add(new Point(x + i, y));
                         break;
                     }
                 }
