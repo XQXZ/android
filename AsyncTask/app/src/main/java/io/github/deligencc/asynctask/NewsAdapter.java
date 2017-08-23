@@ -1,6 +1,7 @@
 package io.github.deligencc.asynctask;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,7 +79,14 @@ public class NewsAdapter extends BaseAdapter implements AbsListView.OnScrollList
         String url = mList.get(position).newsIconUrl;
         viewHolder.ivIcon.setTag(url);//作为身份标识
        // new ImageLoader().showImageByThread(viewHolder.ivIcon,mList.get(position).newsIconUrl);
-        mImageLoader.showImageByAsyncTask(viewHolder.ivIcon,url);
+//        mImageLoader.showImageByAsyncTask(viewHolder.ivIcon,url);
+        //如果缓存中已经存在则设置缓存图片
+        Bitmap bitmap = mImageLoader.getBitmapFromCache(url);
+        if(bitmap != null){
+            viewHolder.ivIcon.setImageBitmap(bitmap);
+        }else {
+            viewHolder.ivIcon.setImageResource(R.mipmap.ic_launcher);
+        }
         viewHolder.tvTitle.setText(mList.get(position).newsTitle);
         viewHolder.tvContent.setText(mList.get(position).newsContent);
         return convertView;
