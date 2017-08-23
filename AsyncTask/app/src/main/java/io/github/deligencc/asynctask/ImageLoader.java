@@ -43,7 +43,7 @@ public class ImageLoader {
         mCaches = new LruCache<String, Bitmap>(cacheSize) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
-                //在每次存入缓存的时候调用
+                //返回图片大小，每次存入缓存时调用
                 return value.getByteCount(); //将bitmap的实际大小传入
             }
         }; //初始化缓存大小
@@ -124,15 +124,21 @@ public class ImageLoader {
             imageView.setImageBitmap(bitmap);
         }
     }
-//用来加载从start到end所有图片
+
+    /**
+     * 用来加载从start到end所有图片
+     * @param start
+     * @param end
+     */
     public void loadImages(int start, int end) {
         for (int i = start; i < end; i++) {
+            //从缓存中取出从start到end位置对应的图片
             String url = NewsAdapter.URLS[i];
-            //从缓存中去除对应的图片
             Bitmap bitmap = getBitmapFromCache(url);
+
             //如果缓存中没有，那么必须去下载
             if (bitmap == null) {
-                NewsAsyncTask task = new NewsAsyncTask();
+                NewsAsyncTask task = new NewsAsyncTask(url);
                 task.execute(url);
                 mTasks.add(task);
 
@@ -149,7 +155,7 @@ public class ImageLoader {
     public void cancelAllTasks() {
         if (mTasks != null) {
             for (NewsAsyncTask task : mTasks) {
-               task.cancel(false);
+               task.cancel(true);
             }
         }
     }
@@ -164,8 +170,6 @@ public class ImageLoader {
             mUrl = url;
         }
 
-        public NewsAsyncTask() {
-        }
 
         @Override
         protected Bitmap doInBackground(String... params) {
